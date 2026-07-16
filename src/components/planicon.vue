@@ -1,17 +1,17 @@
 <script>
 export default {
-    inject: ['biolist'],
+    inject: ['biolist'],   //list of all unique biome types
     data() {
         return{
-        biometype: [],
-        biomekey: [
+        biometype: [],              
+        biomekey: [                                 // strings at index 1 are actual file name components
             [[0,19,20,22,42,43,46],'Desert'],//desert
             [[1,13,32,34,51],'Grass'], //grass
             [[2,7],'Mountain'], //mountain
             [[3,4,9,11],'Forest'], //forest
             [[5,6,29,30],'Ice'], //ice
             [[8,14,38],'Swamp'], //swamp
-            //[12, 27],], //lakesandrivers
+            //[12, 27],], //lakesandrivers    UNUSED
             [[15,35],'Urban'], //urban
             [[16,37,41],'Ocean'], //ocean
             [[24,25,48],'Lava'], //lava
@@ -23,7 +23,7 @@ export default {
         ]
     }},
     props: {
-        terraintypes: String
+        terraintypes: String   ///// split into array later 
     },
     watch: {
         terraintypes: {
@@ -33,7 +33,7 @@ export default {
              generatePlanetIcon() {
                 console.log('!')
                     let terrtypes=this.terraintypes;
-                    let biodat=[];
+                    let biodat=[]; //list of biome codes in planet
                     this.biometype=[];
                     let rawdat=terrtypes.split(', ');
                     for(let terrain of rawdat){
@@ -43,12 +43,12 @@ export default {
                     for (let terrcode of biodat) {
                         for (let mateType of this.biomekey) {
                             if (mateType[0].includes(terrcode)){
-                                this.biometype.push('src/components/planetimage/material'+mateType[1]+'.png')
-                            }
+                                this.biometype.push('src/components/planetimage/material'+mateType[1]+'.png') 
+                            } //material URLs follow a common format, this fits the material into the template and is used directly by segment
                         }
                     }
-                    if(this.biometype.length==0) {this.biometype[0]='src/components/planetimage/blankplanet.png'}
-                    if(this.biometype.length==1) {this.biometype[1]=this.biometype[0]};
+                    if(this.biometype.length==0) {this.biometype[0]='src/components/planetimage/blankplanet.png'} // 0 biomes means planet is not shown yet or an error has occured
+                    if(this.biometype.length==1) {this.biometype[1]=this.biometype[0]};         // fills biome data for <4 biomes
                     if(this.biometype.length==2) {this.biometype[2]=this.biometype[1]};
                     if(this.biometype.length==3) {this.biometype[3]=this.biometype[0]};
                 }

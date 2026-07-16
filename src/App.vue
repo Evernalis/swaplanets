@@ -41,14 +41,14 @@ let deckSize=42;
                     if (value.population=='unknown') {nullcount++};
                     if (value.diameter=='unknown') {nullcount++};
                     if (value.surface_water=='unknown') {nullcount++; value.surface_water=0};
-                    return nullcount<=1
+                    return nullcount<=1 // only use planets with 1 or 0 unknown
                     }
                     console.log(planetlist)
                     
-        for(let planet of planetlist){
+        for(let planet of planetlist){          // get list of unique biome types
             for(let biome of planet.terrain.split(', ')) {
                 if(!biomelist.includes(biome)){
-                    biomelist.push(biome)
+                    biomelist.push(biome) 
                 }
             }
         }
@@ -81,10 +81,13 @@ let deckSize=42;
         console.log(p2deck);
         
         
+
+
+
         export default {
           provide() {
               return {
-                biolist: biomelist
+                biolist: biomelist // sends a global variable to planicon 
               }
           },
             data() {
@@ -137,7 +140,7 @@ let deckSize=42;
               statbox
             },
             methods: {
-                displayRandomPlanet() {
+                displayRandomPlanet() { //unused
                     let rawplanet;
                     let planetfetch=Math.floor(Math.random()*planetlist.length);
                     this.planetid=planetfetch;
@@ -148,9 +151,9 @@ let deckSize=42;
                     
                    // console.log(this.pName)
                 },
-                displayNextPlanet() {
+                displayNextPlanet() {// now only used at the start of the game
                     p2deck.splice(deckSize, 42-deckSize);
-                    p1deck=p2deck.splice(0,Math.floor(p2deck.length/2));
+                    p1deck=p2deck.splice(0,Math.floor(p2deck.length/2)); // chop deck
                     this.result=planetlist[p1deck[0]];
                     console.log(this.result);
                     console.log(this.result.name);
@@ -185,17 +188,17 @@ let deckSize=42;
                 rollingchoice(){
                     if (this.scrolliter==10+this.scrolltarget){
                         console.log(this.scrolltarget);
-                        this.comparetrumps(true);
+                        this.comparetrumps(true); //runs regular comparison code
                         return
                     }
                     this.scrolliter++;
                     this.choice=['rotation_period','orbital_period','diameter','surface_water','population'][this.scrolliter%5];
-                    setTimeout(this.rollingchoice, 100)
+                    setTimeout(this.rollingchoice, 100) //delayed loop
                 },
                 loopback(val){this.rollingchoice(val)},
-                comparetrumps(scrolled=false) {
+                comparetrumps(scrolled=false) {  //run when 'Compare Button' is pressed
                     this.inComparison=true;
-                    if(this.isAI&&this.active=='2'&&!scrolled){
+                    if(this.isAI&&this.active=='2'&&!scrolled){  // if AI needs to choose redirect then teriminate, call again when chosen after rollingchoice
                         this.aiCompare();
                         return null;
                     }
@@ -213,8 +216,8 @@ let deckSize=42;
                     if (this.responseval=='unknown') {
                         this.responseval=0
                     }
-                    this.responsename=planetlist[p2deck[0]].name;
-                    if(chosenval - 1 == this.responseval - 1) {
+                    this.responsename=planetlist[p2deck[0]].name; 
+                    if(chosenval - 1 == this.responseval - 1) {         //subtraction of 1 forces numeric type to avoid string comparison issues
                         this.outcome="It's a draw!"
                     } else if(chosenval - 1 < this.responseval - 1){
                         this.outcome='Player !AX has been dethroned!'.replace('!AX', this.active)
@@ -229,7 +232,7 @@ let deckSize=42;
                   this.rollEvent=true;
                   this.response=planetlist[p2deck[0]];
                     let winlist =[];
-                    for(let i=0; i<5; i++){
+                    for(let i=0; i<5; i++){         //evaluates potential outcomes
                     let chosenval=this.result[this.validcats[i]];
                     if (chosenval=='unknown'){
                         chosenval=0
@@ -250,7 +253,7 @@ let deckSize=42;
                     let catWeights=[0,0,0,0,0]
                     function checkfunc(value) {return value=='Win'}
                     let winModifier=0.4/winlist.filter(checkfunc).length
-                    for (let i=0; i<5; i++){
+                    for (let i=0; i<5; i++){    //computes each category as a weight 
                         if (winlist[i]=='Draw'){
                             catWeights[i]=0.8
                         } else if (winlist[i]=='Win') {
@@ -264,40 +267,40 @@ let deckSize=42;
                     this.scrolliter=0;
                     this.rollingchoice()
                 },
-                evaluate(){
+                evaluate(){             //runs to start the next round of the game, when 'Continue' is pressed.
                     this.evald=false;
                     if (this.outcome == "It's a draw!"){
                         this.drawpile.push(p1deck.shift());
-                        this.drawpile.push(p2deck.shift());
+                        this.drawpile.push(p2deck.shift()); //pools both cards 
                     } else{
-                        if (this.outcome[this.outcome.length - 1] == '!') {
+                        if (this.outcome[this.outcome.length - 1] == '!') { //dethrone event always ends with !
                             let temp=p1deck;
-                            p1deck=p2deck;
+                            p1deck=p2deck; //swaps the decks, so p1deck is always the active player
                             p2deck=temp;
-                            this.active={'1':'2','2':'1'}[this.active]
+                            this.active={'1':'2','2':'1'}[this.active] //swaps active between 1 and 2
                         
                         }
-                        p1deck.concat(this.drawpile);
+                        p1deck.concat(this.drawpile); //gives pooled cards to winner
                         this.drawpile=[];
                         p1deck.push(p2deck.shift())
                     }
-                    p1deck.push(p1deck.shift())
+                    p1deck.push(p1deck.shift()) //cycles card to front
                     this.inComparison=false;
                     this.result=planetlist[p1deck[0]];
                     this.pName=this.result.name;
                     this.choice=null;
-                    if(this.active=='1') {
+                    if(this.active=='1') {    //p1len and p2len are always for the same players, unlike p1deck and p2deck, which can flip
                         this.p1len=p1deck.length
                     } else {
                         this.p1len=p2deck.length
                     }
                     this.p2len=deckSize-this.p1len-this.drawpile.length ;
-                    if(this.p1len==deckSize) {
+                    if(this.p1len==deckSize) { //active player has all cards
                         alert('Player XXX wins!'.replace('XXX', this.active));
                         window,location.reload()
                     }
                 },
-                upate(val) {
+                upate(val) { // event from statbox to forward variable
                   this.choice=val;
                 }
             }
@@ -347,7 +350,7 @@ let deckSize=42;
               </div>
             
             <statbox :class="{rivbox: active==1, activebox: active==2}" :rolling="rollEvent" :planetdata="response" :mystery="!evald && !inComparison" :locked="evald" :overridehighlight="choice" :selectable="false" />
-                
+                <!-- rivbox and activebox switch positions instead of function when player changes-->
                 
             </div>
                 <br><br> 
@@ -441,7 +444,7 @@ let deckSize=42;
     }
     #comparebtn {
       border-color: azure;
-      position:relative;    /*-------------------------------------------FIXTHIS ------------------------------------------*/
+      position:relative;    
       margin: 0;
       height:30px;
       float:none;

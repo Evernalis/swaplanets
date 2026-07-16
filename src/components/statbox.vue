@@ -73,7 +73,7 @@ export default {
             if (this.planetdat==undefined || this.mystery) {
                 this.planetdat = {
                     'name': 'Hidden Planet',
-                    'rotation_period': 'unknown',
+                    'rotation_period': 'unknown',   //duplicates data so values can be changed without altering source data
                     'orbital_period': 'unknown',
                     'diameter': 'unknown',
                     'climate': 'NULL',
@@ -82,7 +82,7 @@ export default {
                     'population': 'unknown'
                 }
             }
-            if  (this.planetdat.surface_water =='unknown') {
+            if  (this.planetdat.surface_water =='unknown') { // 'unknown' is too wide and causes card issues with surface water, so is swapped with 0
                 this.planetdat.surface_water == 0 ;
                 alert(this.planetdat.surface_water);
             }
@@ -102,7 +102,7 @@ export default {
             else if (this.planetdat.diameter < 12000){psize=' moderately sized'}
             else {psize=' large'}
             let grammarfix='';
-            if (['a','e','i','o','u'].includes(this.planetdat.climate.split(', ')[0][0])){grammarfix='n'}
+            if (['a','e','i','o','u'].includes(this.planetdat.climate.split(', ')[0][0])){grammarfix='n'} //adds 'n' before a climate with a vowel start
             this.descript=this.desctemplate.replace('!!PLANETNAME', this.pName).replace('!!SIZE', psize).replace('??', grammarfix).replace('!!CLIMATE', this.planetdat.climate.split(', ')[0])
             }}
     },
@@ -112,7 +112,7 @@ export default {
     ,
         mystery:{
         handler() {this.onNewPlanet()}},
-        locked: {handler(newv) {if(newv) {this.choice=undefined}}},
+        locked: {handler(newv) {if(newv) {this.choice=undefined}}}, // unlock means new round, so reset choice
         rolling: {handler() {this.onNewPlanet()}}   
     }
 } 
