@@ -1,6 +1,6 @@
   <script>
-import planicon from './planicon.vue'
-import statbox from './statbox.vue';
+import planicon from './components/planicon.vue'
+import statbox from './components/statbox.vue';
 function weightedRandom(weights) {
     function summation(sum, num){ return sum + num} ;
     let checkvalue=Math.random()*weights.reduce(summation, 0);7
@@ -362,7 +362,7 @@ let deckSize=42;
 
 <style>
     body {
-        background-image:url('./planetimage/bgimage.png');
+        background-image:url('./components/planetimage/bgimage.png');
         background-size:auto;
         background-color: #ccbbaa;
         padding: 0px;

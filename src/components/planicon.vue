@@ -43,11 +43,11 @@ export default {
                     for (let terrcode of biodat) {
                         for (let mateType of this.biomekey) {
                             if (mateType[0].includes(terrcode)){
-                                this.biometype.push('src/planetimage/material'+mateType[1]+'.png')
+                                this.biometype.push('src/components/planetimage/material'+mateType[1]+'.png')
                             }
                         }
                     }
-                    if(this.biometype.length==0) {this.biometype[0]='src/planetimage/blankplanet.png'}
+                    if(this.biometype.length==0) {this.biometype[0]='src/components/planetimage/blankplanet.png'}
                     if(this.biometype.length==1) {this.biometype[1]=this.biometype[0]};
                     if(this.biometype.length==2) {this.biometype[2]=this.biometype[1]};
                     if(this.biometype.length==3) {this.biometype[3]=this.biometype[0]};
@@ -68,16 +68,16 @@ export default {
 
 <style scoped>
     .sec0 {
-        mask-image: url(./planetimage/section0.png);
+        mask-image: url(src/components/planetimage/section0.png);
     }
     .sec1 {
-        mask-image: url(./planetimage/section1.png);
+        mask-image: url(src/components/planetimage/section1.png);
     }
     .sec2 {
-        mask-image: url(./planetimage/section2.png);
+        mask-image: url(src/components/planetimage/section2.png);
     }
     .sec3 {
-        mask-image: url(./planetimage/section3.png);
+        mask-image: url(src/components/planetimage/section3.png);
     }
     .planico {
         width: 128px;
