@@ -23,10 +23,7 @@ function weightedRandom(weights) {
 let deckSize=42;
 
 
-function getUrl(material) {
-    return document.getElementById('mat'+material).src;
-}
-alert(getUrl('Mountain'));
+
  let planetlist;
         let biomelist = [];
         function getPlanets() {
@@ -278,6 +275,7 @@ alert(getUrl('Mountain'));
                         this.drawpile.push(p1deck.shift());
                         this.drawpile.push(p2deck.shift()); //pools both cards 
                     } else{
+                        p1deck.concat(this.drawpile); //gives pooled cards to winner
                         if (this.outcome[this.outcome.length - 1] == '!') { //dethrone event always ends with !
                             let temp=p1deck;
                             p1deck=p2deck; //swaps the decks, so p1deck is always the active player
@@ -285,7 +283,7 @@ alert(getUrl('Mountain'));
                             this.active={'1':'2','2':'1'}[this.active] //swaps active between 1 and 2
                         
                         }
-                        p1deck.concat(this.drawpile); //gives pooled cards to winner
+                        
                         this.drawpile=[];
                         p1deck.push(p2deck.shift())
                     }
@@ -300,7 +298,7 @@ alert(getUrl('Mountain'));
                         this.p1len=p2deck.length
                     }
                     this.p2len=deckSize-this.p1len-this.drawpile.length ;
-                    if(this.p1len==deckSize) { //active player has all cards
+                    if(this.p2len==0 || this.p1len==0) { //active player has all cards
                         alert('Player XXX wins!'.replace('XXX', this.active));
                         window,location.reload()
                     }
@@ -470,7 +468,7 @@ alert(getUrl('Mountain'));
         justify-content: center;
         width: 20px;
         padding: 0px;
-        padding-left: -4px;
+        padding-left: 0px;
         padding-top:1px;
         text-overflow: clip;
         height: 20px;
