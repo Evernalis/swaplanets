@@ -365,7 +365,7 @@ let deckSize=42;
 
 <style>
     body {
-        background-image:url('./components/planetimage/bgimage.png');
+        background-image:url('./assets/planetimage/bgimage.png');
         background-size:auto;
         background-color: #ccbbaa;
         padding: 0px;
