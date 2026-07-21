@@ -43,7 +43,7 @@ export default {
                     for (let terrcode of biodat) {
                         for (let mateType of this.biomekey) {
                             if (mateType[0].includes(terrcode)){
-                                this.biometype.push(new URL(`../assets/${mateType[1]+'.png'}`,import.meta.url).href) 
+                                this.biometype.push(new URL(`../assets/${'material'+mateType[1]+'.png'}`,import.meta.url).href) 
                             } //material URLs follow a common format, this fits the material into the template and is used directly by segment
                         }
                     }
