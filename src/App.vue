@@ -321,9 +321,9 @@ let deckSize=42;
         <span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AI Difficulty:  </span>
         <select id="stupidityselector" @change="updateStupidity" :disabled="!isAI">
             <option value="0.69">Easy</option>
-            <option value="0.4" selected>Moderate</option>
-            <option value="0.2">Hard</option>
-            <option value="0.05">Omniscient</option>
+            <option value="0.43" selected>Moderate</option>
+            <option value="0.21">Hard</option>
+            <option value="0.06">Omniscient</option>
         </select><span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number of planets(&lt;=42): </span> <input id="planInput" value=42 @change="updateCardCount" type="number">
         <br></div>
         
@@ -516,14 +516,16 @@ let deckSize=42;
         font-family:'Courier New', Courier, monospace;
         border-style: solid;
         border-color: #697282;
-        color: #ccbbaa;
+        color: #ffffff;
         overflow: hidden;
         height:19px;
         max-width: 98%;
+        
     }
     .highlight {
         background-image: linear-gradient(to right, #777755, rgb(255, 255, 0) 40%,rgb(255, 255, 0),#777755);
         color: #222221;
+        
 
 
     }
