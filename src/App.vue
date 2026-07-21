@@ -24,14 +24,6 @@ let deckSize=42;
 
  let planetlist;
         let biomelist = [];
-
-
-function findpiconurl(material) {
-    alert(document.getElementById('matfind').src);
-}
-findpiconurl();
-
-
         function getPlanets() {
                 fetch("https://swapi.info/api/planets/")
                     .then(res => {return res.json()})
@@ -324,9 +316,6 @@ findpiconurl();
 
 <template>
         <div id="startmenu" v-if=" pName =='No planet yet!'">
-
-            
-
         <br>
         <button  @click="displayNextPlanet">Click to Start!</button><button @click="toggleAI" :class="{highlight: !isAI}">Enable 2-player mode</button>
         <span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AI Difficulty:  </span>

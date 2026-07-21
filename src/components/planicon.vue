@@ -43,11 +43,11 @@ export default {
                     for (let terrcode of biodat) {
                         for (let mateType of this.biomekey) {
                             if (mateType[0].includes(terrcode)){
-                                this.biometype.push(new URL('.assets/planetimage/material'+mateType[1]+'.png',import.meta.url).href) 
+                                this.biometype.push(new URL('./planetimage/material'+mateType[1]+'.png',import.meta.url).href) 
                             } //material URLs follow a common format, this fits the material into the template and is used directly by segment
                         }
                     }
-                    if(this.biometype.length==0) {this.biometype[0]=new URL(`.assets/planetimage/blankplanet.png`, import.meta.url).href   } // 0 biomes means planet is not shown yet or an error has occured
+                    if(this.biometype.length==0) {this.biometype[0]=new URL(`./planetimage/blankplanet.png`, import.meta.url).href   } // 0 biomes means planet is not shown yet or an error has occured
                     if(this.biometype.length==1) {this.biometype[1]=this.biometype[0]};         // fills biome data for <4 biomes
                     if(this.biometype.length==2) {this.biometype[2]=this.biometype[1]};
                     if(this.biometype.length==3) {this.biometype[3]=this.biometype[0]};
