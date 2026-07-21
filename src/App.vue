@@ -22,6 +22,11 @@ function weightedRandom(weights) {
 }
 let deckSize=42;
 
+
+function getUrl(material) {
+    return document.getElementById('mat'+material).src;
+}
+alert(getUrl('Mountain'));
  let planetlist;
         let biomelist = [];
         function getPlanets() {
