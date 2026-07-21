@@ -334,7 +334,8 @@ let deckSize=42;
         
         <div v-if="pName!='No planet yet!'">
             <statbox id="awakebox" :class="{rivbox: active==2, activebox: active==1}" v-if="pName!='No planet yet!'" :selectable="!(active==2&&isAI)" :planetdata="result" @upate="(val) => upate(val)" :locked="evald||inComparison" :overridehighlight="choice"/>
-            <div class="controlbox">
+            
+                <div class="controlbox">
               <div>
                 <button @click="comparetrumps()" id="comparebtn" :class="{vanish: !((isAI&&active=='2'&&!inComparison)||(!inComparison&&pName!='No planet yet!'&&choice!=null))}" :disabled="!((isAI&&active=='2'&&!inComparison)||(!inComparison&&pName!='No planet yet!'&&choice!=null))">Compare!</button>  
               
@@ -354,7 +355,7 @@ let deckSize=42;
             
             <statbox :class="{rivbox: active==1, activebox: active==2}" :rolling="rollEvent" :planetdata="response" :mystery="!evald && !inComparison" :locked="evald" :overridehighlight="choice" :selectable="false" />
                 <!-- rivbox and activebox switch positions instead of function when player changes-->
-                
+                <div style="height:40px; " /> <div  class="cardpile">{{ p1len }}</div><div  class="cardpile p2pile">{{ p2len }}</div>
             </div>
                 <br><br> 
                 
@@ -427,6 +428,26 @@ let deckSize=42;
         padding-top: 15px;  
         
        
+    }
+    .cardpile {
+        background-image: url('./assets/planetimage/stackpic.png');
+        background-repeat: no-repeat;
+        height: 128px;
+        width: 128px;
+        font-size: 35px;
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        color: #ffdd99;
+        text-align: center;
+        padding-top:30px;
+        display: inline-block;
+        margin-left:256px;
+       
+
+    }
+    .p2pile {
+        float:right;
+        background-image: url('./assets/planetimage/stackpicred.png');
+        margin-right:356px;
     }
     .controlbox{
       background-image:linear-gradient(#aaaaaa, #a3883e);
