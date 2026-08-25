@@ -401,7 +401,7 @@ let deckSize=42;
 <template>
         <div id="startmenu" v-if=" pName =='No planet yet!'">
         <br>
-        <button  @click="displayNextPlanet(true)" :disabled="isOnline&& !decksLocked" :class="{highlight:decksLocked}">Click to Start!</button> <p v-if="isOnline&& !decksLocked">Awaiting second player.</p> <p v-if="decksLocked">Player found.</p>
+        <button  @click="displayNextPlanet(true)" :disabled="isOnline&& !decksLocked" :class="{highlight:decksLocked}">Click to Start!</button> <span v-if="isOnline&& !decksLocked">Awaiting second player.</span> <span v-if="decksLocked">Player found.</span>
         <button @click="toggleAI" :class="{highlight: !isAI}" :disabled="isOnline">Enable local multiplayer mode</button>
         <button @click="connectserver" :disabled="isOnline">Connect to Online Mode</button>
         <span > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AI Difficulty:  </span>
