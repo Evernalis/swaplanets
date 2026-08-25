@@ -492,6 +492,9 @@ let deckSize=42;
         border-color:#000000;
         border-style: double;
     }
+    #planInput {
+        width: 30px;
+    }
     #pdisp {
         background-image: radial-gradient(circle, rgba(255, 255, 200, 0.5),  rgb(196, 196, 196));
         border-style: double;
