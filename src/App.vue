@@ -1,9 +1,13 @@
   <script>
+
+const serverUrl='wss://swaptrumpserver.sfatkin2009.workers.dev/websocket';
+
+import { isOn } from '@vue/shared';
 import planicon from './components/planicon.vue'
 import statbox from './components/statbox.vue';
 function weightedRandom(weights) {
     function summation(sum, num){ return sum + num} ;
-    let checkvalue=Math.random()*weights.reduce(summation, 0);7
+    let checkvalue=Math.random()*weights.reduce(summation, 0);
     let runningtotal=0
     let i=0;
     for(let j=0; j<weights.length;j++) {
@@ -21,6 +25,8 @@ function weightedRandom(weights) {
     }
 }
 let deckSize=42;
+
+
 
 
 
@@ -82,6 +88,7 @@ let deckSize=42;
         console.log(p1deck);
         console.log(p2deck);
         
+       
         
 
 
@@ -134,7 +141,12 @@ let deckSize=42;
                     evald:false,
                     blist: biomelist,
                     response: undefined,
-                    rollEvent: false
+                    rollEvent: false,
+                    netlink: undefined,
+                    isOnline: false,
+                    decksLocked: false,
+                    rivname: 'Player Two',
+                    username1: 'Player One',
                 }
             },
             components: {
@@ -142,6 +154,55 @@ let deckSize=42;
               statbox
             },
             methods: {
+                connectserver() {
+                    this.username1=null;
+                    while (this.username1==null) {
+                        this.username1 = window.prompt('Please enter your username to continue.')
+                    }
+                    this.netlink = new WebSocket(serverUrl)
+                    this.netlink.addEventListener("open", () => {
+                    console.log("CONNECTED");
+                    this.isOnline=true;
+                    this.netlink.send(JSON.stringify({
+                        mailtype: 'initial',
+                        uName: this.username1
+                    }))});
+                    this.netlink.addEventListener('message', (msg) => this.getMail(JSON.parse(msg.data)))
+                    
+                },
+                getMail(mail) {
+                    console.log('Mail recieved with type ' + mail.mailtype)
+                    console.log('Raw data:')
+                    console.log(mail)
+                    if(mail.mailtype=='initial') {
+                        this.isOnline=true;
+                        this.decksLocked = true
+                        p2deck.splice(deckSize, 42-deckSize);
+                        p1deck=p2deck.splice(0,Math.floor(p2deck.length/2));
+                        this.rivname=mail.uName;
+                        this.netlink.send(JSON.stringify({
+                            mailtype: 'handshake',
+                            decks: [p1deck, p2deck],
+                            uName: this.username1
+                        })
+                        )
+                    } else if(mail.mailtype=='handshake') {
+                        this.isOnline=true;
+                        this.decksLocked=true;
+                        p2deck=mail.decks[0];
+                        p1deck=mail.decks[1];
+                        this.rivname=mail.uName;
+                        this.active='2'
+                    } else if(mail.mailtype=='choice'){
+                        this.choice=mail.choice;
+                        this.comparetrumps(false, true);
+                    } else if(mail.mailtype=='eval') {
+                        this.evaluation(true)
+                    } else if(mail.mailtype=='start') {
+                        this.displayNextPlanet(false)
+                    }
+                
+                },
                 displayRandomPlanet() { //unused
                     let rawplanet;
                     let planetfetch=Math.floor(Math.random()*planetlist.length);
@@ -153,9 +214,18 @@ let deckSize=42;
                     
                    // console.log(this.pName)
                 },
-                displayNextPlanet() {// now only used at the start of the game
+                displayNextPlanet(bump=false) {// now only used at the start of the game
+                    if(bump==true && this.isOnline) {
+                        console.log('posting')
+                        this.netlink.send(JSON.stringify({
+                            mailtype:'start'
+                        }))
+                    }
+                    console.log('loading.')
+                    if (!this.isOnline) {
                     p2deck.splice(deckSize, 42-deckSize);
-                    p1deck=p2deck.splice(0,Math.floor(p2deck.length/2)); // chop deck
+                    p1deck=p2deck.splice(0,Math.floor(p2deck.length/2))}
+                     // chop deck
                     this.result=planetlist[p1deck[0]];
                     console.log(this.result);
                     console.log(this.result.name);
@@ -198,9 +268,15 @@ let deckSize=42;
                     setTimeout(this.rollingchoice, 100) //delayed loop
                 },
                 loopback(val){this.rollingchoice(val)},
-                comparetrumps(scrolled=false) {  //run when 'Compare Button' is pressed
+                comparetrumps(scrolled=false, fromMail=false) {  //run when 'Compare Button' is pressed
+                    if (this.isOnline && !fromMail) {
+                        this.netlink.send(JSON.stringify({
+                            mailtype: 'choice',
+                            choice: this.choice
+                        }))
+                    }
                     this.inComparison=true;
-                    if(this.isAI&&this.active=='2'&&!scrolled){  // if AI needs to choose redirect then teriminate, call again when chosen after rollingchoice
+                    if(this.isAI&&this.active=='2'&&!scrolled&& !this.isOnline){  // if AI needs to choose redirect then teriminate, call again when chosen after rollingchoice
                         this.aiCompare();
                         return null;
                     }
@@ -269,7 +345,12 @@ let deckSize=42;
                     this.scrolliter=0;
                     this.rollingchoice()
                 },
-                evaluate(){             //runs to start the next round of the game, when 'Continue' is pressed.
+                evaluation(fromMail=false){             //runs to start the next round of the game, when 'Continue' is pressed.
+                if (this.isOnline && !fromMail) {
+                        this.netlink.send(JSON.stringify({
+                            mailtype: 'eval',
+                        }))
+                    }
                     this.evald=false;
                     if (this.outcome == "It's a draw!"){
                         this.drawpile.push(p1deck.shift());
@@ -320,14 +401,16 @@ let deckSize=42;
 <template>
         <div id="startmenu" v-if=" pName =='No planet yet!'">
         <br>
-        <button  @click="displayNextPlanet">Click to Start!</button><button @click="toggleAI" :class="{highlight: !isAI}">Enable 2-player mode</button>
-        <span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AI Difficulty:  </span>
-        <select id="stupidityselector" @change="updateStupidity" :disabled="!isAI">
+        <button  @click="displayNextPlanet(true)" :disabled="isOnline&& !decksLocked" :class="{highlight:decksLocked}">Click to Start!</button> <p v-if="isOnline&& !decksLocked">Awaiting second player.</p> <p v-if="decksLocked">Player found.</p>
+        <button @click="toggleAI" :class="{highlight: !isAI}" :disabled="isOnline">Enable local multiplayer mode</button>
+        <button @click="connectserver" :disabled="isOnline">Connect to Online Mode</button>
+        <span > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AI Difficulty:  </span>
+        <select id="stupidityselector" @change="updateStupidity" :disabled="!isAI || isOnline">
             <option value="0.69">Easy</option>
             <option value="0.43" selected>Moderate</option>
             <option value="0.21">Hard</option>
             <option value="0.06">Omniscient</option>
-        </select><span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number of planets(&lt;=42): </span> <input id="planInput" value=42 @change="updateCardCount" type="number">
+        </select><span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number of planets(&lt;=42): </span> <input :disabled="decksLocked" id="planInput" value=42 @change="updateCardCount" type="number">
         <br></div>
         
         
@@ -341,12 +424,9 @@ let deckSize=42;
               
                 
                   
-                <button @click="evaluate()" v-if="evald">Continue</button>
+                <button @click="evaluation()" v-if="evald">Continue</button>
             <br>
-            <p v-if="pName!='No planet yet!'">It is player {{active}}'s turn.</p>
-            <br>
-            <p v-if="pName!='No planet yet!'">Player 1 has {{p1len}} planets.<br>
-            Player 2{{aiflag}} has {{p2len}} planets.</p>
+            
                 <h2 v-if="evald">Rival Planet: {{responsename}}!</h2>
                 <p v-if="evald">{{responsename}} has a {{transkey[choice]}} value of {{responseval}}!</p>
                 <p v-if="evald">{{outcome}}         </p>
@@ -355,7 +435,7 @@ let deckSize=42;
             
             <statbox :class="{rivbox: active==1, activebox: active==2}" :rolling="rollEvent" :planetdata="response" :mystery="!evald && !inComparison" :locked="evald" :overridehighlight="choice" :selectable="false" />
                 <!-- rivbox and activebox switch positions instead of function when player changes-->
-                <div style="height:40px; " /> <div  class="cardpile">{{ p1len }}</div><div  class="cardpile p2pile">{{ p2len }}</div>
+                <div style="height:40px;  " />  <div class="nameplate" :class="{rivplate:active==2}">{{ username1 }}</div><div class="nameplate":class="{rivplate:active=='1'}">{{ rivname }}</div> <br> <div  class="cardpile">{{ p1len }}</div><div  class="cardpile p2pile">{{ p2len }}</div> 
             </div>
                 <br><br> 
                 
@@ -401,9 +481,10 @@ let deckSize=42;
     button {
         padding: 10px;
         border-radius: 20px;
-        border-width: 0px;
+        border-width: 2px;
         margin-right: 10px;
         transition-duration: 200ms;
+        border-style: solid;
         
 
     }
@@ -440,14 +521,16 @@ let deckSize=42;
         text-align: center;
         padding-top:30px;
         display: inline-block;
-        margin-left:256px;
+        margin-left:10%;
+        margin-top: 1%;
        
 
     }
     .p2pile {
         float:right;
         background-image: url('./assets/planetimage/stackpicred.png');
-        margin-right:356px;
+        margin-right:15%;
+        margin-left: 30%;
     }
     .controlbox{
       background-image:linear-gradient(#aaaaaa, #a3883e);
@@ -481,6 +564,26 @@ let deckSize=42;
     #comparebtn.vanish  {
       width: 0px;
       padding: 0px;
+    }
+    .nameplate{
+        background-color: hsl(198, 25%, 50%);
+        width: 20%;
+        margin-left:5%;
+        height: 40px;
+        border-style: solid;
+        border-color:hsl(198, 25%, 30%);
+        font-size: 30px;
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        color: #dbd9d7;
+        text-align: center;
+        display:inline-block;
+        
+    }
+    .rivplate{
+        float:right;
+        margin-left:0%;
+        margin-right: 10%;
+        margin-top:0px;
     }
     .selector{
         background-color:#FCFCFC;
@@ -577,7 +680,7 @@ let deckSize=42;
         color: #00000000
     }
     #startmenu {
-        width: 80%;
+        width: 90%;
         height: 80px;
         display: inline-block;
         transition-duration: 500ms;
