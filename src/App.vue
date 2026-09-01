@@ -10,7 +10,7 @@ function weightedRandom(weights) {
     let checkvalue=Math.random()*weights.reduce(summation, 0);
     let runningtotal=0
     let i=0;
-    for(let j=0; j<weights.length;j++) {
+    for(let j=0; j<weights.length;j++) { // iterates through weights until selection is reached
         
         runningtotal -= 0 - weights[j];
         if(runningtotal >= checkvalue) {
@@ -157,7 +157,7 @@ let deckSize=42;
               statbox
             },
             methods: {
-                connectserver() {
+                connectserver() {     // Establishes a connection. This is called when the Online Mode button is pressed.
                     this.username1=null;
                     while (this.username1==null) {
                         this.username1 = window.prompt('Please enter your username to continue.')
@@ -167,18 +167,18 @@ let deckSize=42;
                     console.log("CONNECTED");
                     this.isOnline=true;
                     this.isAI=false;
-                    this.netlink.send(JSON.stringify({
+                    this.netlink.send(JSON.stringify({ // mail is discarded if unread, this is intentional
                         mailtype: 'initial',
                         uName: this.username1
                     }))});
                     this.netlink.addEventListener('message', (msg) => this.getMail(JSON.parse(msg.data)))
                     
                 },
-                getMail(mail) {
+                getMail(mail) { // function called on any message from other client
                     console.log('Mail recieved with type ' + mail.mailtype)
                     console.log('Raw data:')
                     console.log(mail)
-                    if(mail.mailtype=='initial') {
+                    if(mail.mailtype=='initial') { // message recieved when a second user makes inital contact
                         this.isOnline=true;
                         this.decksLocked = true
                         p2deck.splice(deckSize, 42-deckSize);
@@ -191,7 +191,7 @@ let deckSize=42;
                             decklen:deckSize
                         })
                         )
-                    } else if(mail.mailtype=='handshake') {
+                    } else if(mail.mailtype=='handshake') { // message when the first client acknowledges the existence of the second, syncs and initialises
                         this.isOnline=true;
                         document.getElementById('planInput').value=mail.decklen
                         deckSize=mail.decklen;
@@ -202,12 +202,12 @@ let deckSize=42;
                         this.rivname=mail.uName;
                         this.active='2';
                         this.isSecondClient=true;
-                    } else if(mail.mailtype=='choice'){
+                    } else if(mail.mailtype=='choice'){// message when the other client has chosen a category
                         this.choice=mail.choice;
                         this.comparetrumps(false, true);
-                    } else if(mail.mailtype=='eval') {
+                    } else if(mail.mailtype=='eval') {// message when the other client has advanced to the next round, mirrors for both clients
                         this.evaluation(true)
-                    } else if(mail.mailtype=='start') {
+                    } else if(mail.mailtype=='start') {// same as above, but for game start
                         this.displayNextPlanet(false)
                     }
                 
@@ -224,7 +224,7 @@ let deckSize=42;
                    // console.log(this.pName)
                 },
                 displayNextPlanet(bump=false) {// now only used at the start of the game
-                    if(bump==true && this.isOnline) {
+                    if(bump==true && this.isOnline) {// used to prevent perpetual dialogue
                         console.log('posting')
                         this.netlink.send(JSON.stringify({
                             mailtype:'start'
@@ -234,13 +234,16 @@ let deckSize=42;
                     if (!this.isOnline) {
                     p2deck.splice(deckSize, 42-deckSize);
                     p1deck=p2deck.splice(0,Math.floor(p2deck.length/2))}
-                     // chop deck
+                     // chop deck in local, done in onMail in online
+
+                     
                     this.result=planetlist[p1deck[0]];
                     console.log(this.result);
                     console.log(this.result.name);
                     this.pName=this.result.name;
                     this.p1len=p1deck.length;
                     this.p2len=deckSize-this.p1len-this.drawpile.length;
+                        
                     if(this.isSecondClient) {
                         this.pdat2=this.result;
                     } else {
@@ -256,19 +259,19 @@ let deckSize=42;
                 logid() {
                     console.log(this.planetid)
                 },
-                updateCardCount(){
+                updateCardCount(){ //menu edit reaction
                     if (document.getElementById('planInput').value < 2) {
                         document.getElementById('planInput').value = 2
                     } else if (document.getElementById('planInput').value > 42) {
                         document.getElementById('planInput').value=42
                     } else {
                         deckSize=document.getElementById('planInput').value
-                    } console.log('beep')
+                    } 
                 },
-                updateStupidity(){
+                updateStupidity(){ //menu edit reaction
                     document.getElementById('stupidityselector').value
                 },
-                toggleAI(){
+                toggleAI(){ //menu edit reaction
                     this.isAI=!this.isAI;
                     if(this.isAI) {
                         this.aiflag='(AI)'
@@ -276,7 +279,7 @@ let deckSize=42;
                         this.aiflag=''
                     }
                 },
-                rollingchoice(){
+                rollingchoice(){  //recursively cycles through options as part of the effect when robot is deciding on category
                     if (this.scrolliter==10+this.scrolltarget){
                         console.log(this.scrolltarget);
                         this.comparetrumps(true); //runs regular comparison code
@@ -298,14 +301,14 @@ let deckSize=42;
                     if(this.isAI&&this.active=='2'&&!scrolled&& !this.isOnline){  // if AI needs to choose redirect then teriminate, call again when chosen after rollingchoice
                         this.aiCompare();
                         return null;
-                    }
+                    } //
                     this.rollEvent=false;
                     let chosenval=this.result[this.choice];
-                    if (chosenval=='unknown'){
+                    if (chosenval=='unknown'){ // data marked as unknown is set to zero
                         chosenval=0
                     }
                     
-                    this.response=planetlist[p2deck[0]];
+                    this.response=planetlist[p2deck[0]]; // handles second client info in online
                     if(this.isSecondClient) {
                         this.pdat1=this.response;
                     } else {
@@ -332,7 +335,7 @@ let deckSize=42;
                     console.log(planetlist[p2deck[0]])
                 },
                 
-                aiCompare(){
+                aiCompare(){ // rollingchoice() is the function that sets this.choice then redirects, this initiates rollingchoice
                   this.rollEvent=true;
                   this.response=planetlist[p2deck[0]];
                     let winlist =[];
@@ -372,7 +375,7 @@ let deckSize=42;
                     this.rollingchoice()
                 },
                 evaluation(fromMail=false){             //runs to start the next round of the game, when 'Continue' is pressed.
-                if (this.isOnline && !fromMail) {
+                if (this.isOnline && !fromMail) { //prevents perpetual dialogue
                         this.netlink.send(JSON.stringify({
                             mailtype: 'eval',
                         }))
@@ -382,36 +385,31 @@ let deckSize=42;
                         this.drawpile.push(p1deck.shift());
                         this.drawpile.push(p2deck.shift()); //pools both cards 
                     } else{
-                        p1deck.concat(this.drawpile); //gives pooled cards to winner
+                        
                         if (this.outcome[this.outcome.length - 1] == '!') { //dethrone event always ends with !
                             let temp=p1deck.splice(0);
                             p1deck=p2deck.splice(0); //swaps the decks, so p1deck is always the active player
                             p2deck=temp.splice(0);
                             console.log('flipping')
                             this.active={'1':'2','2':'1'}[this.active] //swaps active between 1 and 2
-                        
                         }
-                        
+                        p1deck.concat(this.drawpile); //gives pooled cards to winner
                         this.drawpile=[];
-                        p1deck.push(p2deck.shift())
+                        p1deck.push(p2deck.shift()) // gives rival card to winner
                     }
                     p1deck.push(p1deck.shift()) //cycles card to front
                     this.inComparison=false;
                     this.result=planetlist[p1deck[0]];
                     this.pName=this.result.name;
                     this.choice=null;
-                    if(this.active=='1' || this.isOnline) {    //p1len and p2len are always for the same players unless online, unlike p1deck and p2deck, which can flip
-                        this.p1len=p1deck.length
-                    } else {
-                        this.p1len=p2deck.length
-                    }
+                    this.p1len=p1deck.length
                     this.p2len=deckSize-this.p1len-this.drawpile.length ;
                     console.log(this.active)
                     if(this.p2len==0 || this.p1len==0) { //active player has all cards
                         alert('XXX wins!'.replace('XXX', {'1': this.username1, '2': this.rivname}[this.active]));
                         window,location.reload()
-                    }
-                if(this.isSecondClient) {
+                    } 
+                if(this.isSecondClient) { //handles icons for clients in online
                         this.pdat2=this.result;
                     } else {
                         this.pdat1=this.result;
