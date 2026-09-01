@@ -315,12 +315,13 @@ let deckSize=42;
                         this.responseval=0
                     }
                     this.responsename=planetlist[p2deck[0]].name; 
+                    let namelist=[this.username1,this.rivname]
                     if(chosenval - 1 == this.responseval - 1) {         //subtraction of 1 forces numeric type to avoid string comparison issues
                         this.outcome="It's a draw!"
                     } else if((chosenval - 1 < this.responseval - 1) != ((this.active=='1') == this.isSecondClient)){
-                        this.outcome='Player !AX has been dethroned!'.replace('!AX', this.active)
+                        this.outcome='!AX has been dethroned!'.replace('!AX', namelist[this.active-1])
                     } else {
-                        this.outcome='Player !AX wins the round.'.replace('!AX', this.active)
+                        this.outcome='!AX wins this round.'.replace('!AX', namelist[this.active-1])
                     }
                     this.evald=true;
                     console.log(planetlist[p2deck[0]])
