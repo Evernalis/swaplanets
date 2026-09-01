@@ -246,6 +246,11 @@ let deckSize=42;
                     } else {
                         this.pdat1=this.result;
                     }
+                    if(this.isSecondClient){
+                    this.pdat1=planetlist[p2deck[0]]
+                    } else {
+                    this.pdat2=planetlist[p2deck[0]]
+                    }
                     
                 },
                 logid() {

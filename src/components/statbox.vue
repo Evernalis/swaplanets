@@ -45,13 +45,14 @@ export default {
                     'surface_water': 'unknown',
                     'population': 'unknown'
                 },
-                pName: 'error',
+                pName: 'Hidden Planet',
 
 
         }
     },
     methods: {
         onNewPlanet(){
+
             console.log(this.planetdata);
             if (this.planetdata != undefined) {
             this.planetdat={
