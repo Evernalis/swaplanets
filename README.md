@@ -1,38 +1,22 @@
-# samtrumps
+# swaplanets
+ A game of strategic planet hoarding.
 
-This template should help get you started developing with Vue 3 in Vite.
+ current version: 1.0
 
-## Recommended IDE Setup
+## About
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+This is a Top Trumps style game that uses planets from Star Wars as the objects that the players compete to claim. One player is determined the 'caller', and they decide what statistic from the five available is to be used to compare the planets. The opponent's planet is revealed, and the planet with the highest statistic wins the round. The winner of the round becomes the caller for the next round. If there is a draw, the winner of the next round also claims the planets contested in the drawn round.
+The game ends when one player has all of the planets.
 
-## Recommended Browser Setup
+This project has been built using HTML, CSS, and JavaScript using the Vue.js framework, with data supplied by SWAPI, the Star Wars API [(swapi.info)](swapi.info).
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+The game can be played in offline singleplayer against an algorithm, against another player in local multiplayer, or in online multiplayer.
 
-## Customize configuration
+There is a backend server that acts as a relay between the two clients when in online mode.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+When in offline singleplayer, the program decides the statistic to choose by determining the outcome of each option, then uses that data to select using a weighted random desicion algorithm.
+## How to Setup
 
-## Project Setup
+The project is accessible at [swaplanets.pages.dev](swaplanets.pages.dev). For installing locally, see `INSTALL.md`.
 
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+##
