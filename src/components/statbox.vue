@@ -84,7 +84,6 @@ export default {
             }
             if  (this.planetdat.surface_water =='unknown') { // 'unknown' is too wide and causes card issues with surface water, so is swapped with 0
                 this.planetdat.surface_water == 0 ;
-                alert(this.planetdat.surface_water);
             }
             if(this.rolling) {
                 this.planetdat.climate='NULL';

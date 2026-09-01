@@ -147,6 +147,9 @@ let deckSize=42;
                     decksLocked: false,
                     rivname: 'Player Two',
                     username1: 'Player One',
+                    isSecondClient: false,
+                    pdat1: undefined,
+                    pdat2: undefined
                 }
             },
             components: {
@@ -163,6 +166,7 @@ let deckSize=42;
                     this.netlink.addEventListener("open", () => {
                     console.log("CONNECTED");
                     this.isOnline=true;
+                    this.isAI=false;
                     this.netlink.send(JSON.stringify({
                         mailtype: 'initial',
                         uName: this.username1
@@ -183,16 +187,21 @@ let deckSize=42;
                         this.netlink.send(JSON.stringify({
                             mailtype: 'handshake',
                             decks: [p1deck, p2deck],
-                            uName: this.username1
+                            uName: this.username1,
+                            decklen:deckSize
                         })
                         )
                     } else if(mail.mailtype=='handshake') {
                         this.isOnline=true;
+                        document.getElementById('planInput').value=mail.decklen
+                        deckSize=mail.decklen;
                         this.decksLocked=true;
-                        p2deck=mail.decks[0];
-                        p1deck=mail.decks[1];
+                        p1deck=mail.decks[0];
+                        p2deck=mail.decks[1];
+                        console.log(p2deck);
                         this.rivname=mail.uName;
-                        this.active='2'
+                        this.active='2';
+                        this.isSecondClient=true;
                     } else if(mail.mailtype=='choice'){
                         this.choice=mail.choice;
                         this.comparetrumps(false, true);
@@ -232,6 +241,11 @@ let deckSize=42;
                     this.pName=this.result.name;
                     this.p1len=p1deck.length;
                     this.p2len=deckSize-this.p1len-this.drawpile.length;
+                    if(this.isSecondClient) {
+                        this.pdat2=this.result;
+                    } else {
+                        this.pdat1=this.result;
+                    }
                     
                 },
                 logid() {
@@ -285,7 +299,13 @@ let deckSize=42;
                     if (chosenval=='unknown'){
                         chosenval=0
                     }
+                    
                     this.response=planetlist[p2deck[0]];
+                    if(this.isSecondClient) {
+                        this.pdat1=this.response;
+                    } else {
+                        this.pdat2=this.response;
+                    }
                     this.responseval=planetlist[p2deck[0]][this.choice];
                     console.log(this.choice);
                     console.log(this.responseval)
@@ -297,7 +317,7 @@ let deckSize=42;
                     this.responsename=planetlist[p2deck[0]].name; 
                     if(chosenval - 1 == this.responseval - 1) {         //subtraction of 1 forces numeric type to avoid string comparison issues
                         this.outcome="It's a draw!"
-                    } else if(chosenval - 1 < this.responseval - 1){
+                    } else if((chosenval - 1 < this.responseval - 1) != ((this.active=='1') == this.isSecondClient)){
                         this.outcome='Player !AX has been dethroned!'.replace('!AX', this.active)
                     } else {
                         this.outcome='Player !AX wins the round.'.replace('!AX', this.active)
@@ -321,7 +341,7 @@ let deckSize=42;
                     }
                     if(chosenval - 1 == airesponseval - 1) {
                         winlist[i]='Draw'
-                    } else if(chosenval - 1 < airesponseval - 1){
+                    } else if((chosenval - 1 < airesponseval - 1)){
                         winlist[i]='Loss'
                     } else {
                         winlist[i]='Win'
@@ -358,9 +378,10 @@ let deckSize=42;
                     } else{
                         p1deck.concat(this.drawpile); //gives pooled cards to winner
                         if (this.outcome[this.outcome.length - 1] == '!') { //dethrone event always ends with !
-                            let temp=p1deck;
-                            p1deck=p2deck; //swaps the decks, so p1deck is always the active player
-                            p2deck=temp;
+                            let temp=p1deck.splice(0);
+                            p1deck=p2deck.splice(0); //swaps the decks, so p1deck is always the active player
+                            p2deck=temp.splice(0);
+                            console.log('flipping')
                             this.active={'1':'2','2':'1'}[this.active] //swaps active between 1 and 2
                         
                         }
@@ -373,16 +394,27 @@ let deckSize=42;
                     this.result=planetlist[p1deck[0]];
                     this.pName=this.result.name;
                     this.choice=null;
-                    if(this.active=='1') {    //p1len and p2len are always for the same players, unlike p1deck and p2deck, which can flip
+                    if(this.active=='1' || this.isOnline) {    //p1len and p2len are always for the same players unless online, unlike p1deck and p2deck, which can flip
                         this.p1len=p1deck.length
                     } else {
                         this.p1len=p2deck.length
                     }
                     this.p2len=deckSize-this.p1len-this.drawpile.length ;
+                    console.log(this.active)
                     if(this.p2len==0 || this.p1len==0) { //active player has all cards
-                        alert('Player XXX wins!'.replace('XXX', this.active));
+                        alert('XXX wins!'.replace('XXX', {'1': this.username1, '2': this.rivname}[this.active]));
                         window,location.reload()
                     }
+                if(this.isSecondClient) {
+                        this.pdat2=this.result;
+                    } else {
+                        this.pdat1=this.result;
+                    }
+                if(this.isSecondClient){
+                    this.pdat1=planetlist[p2deck[0]]
+                } else {
+                    this.pdat2=planetlist[p2deck[0]]
+                }
                 },
                 upate(val) { // event from statbox to forward variable
                   this.choice=val;
@@ -391,7 +423,7 @@ let deckSize=42;
         };
 </script>
 
-
+<!--this.active=='2' == --> 
 
 
 
@@ -416,11 +448,11 @@ let deckSize=42;
         
         
         <div v-if="pName!='No planet yet!'">
-            <statbox id="awakebox" :class="{rivbox: active==2, activebox: active==1}" v-if="pName!='No planet yet!'" :selectable="!(active==2&&isAI)" :planetdata="result" @upate="(val) => upate(val)" :locked="evald||inComparison" :overridehighlight="choice"/>
+            <statbox id="awakebox" :class="{rivbox: active==2, activebox: active==1}" v-if="pName!='No planet yet!'" :selectable="!(active==2&&(isAI||isOnline))" :planetdata="pdat1" @upate="(val) => upate(val)" :locked="evald||inComparison" :overridehighlight="choice"/>
             
                 <div class="controlbox">
               <div>
-                <button @click="comparetrumps()" id="comparebtn" :class="{vanish: !((isAI&&active=='2'&&!inComparison)||(!inComparison&&pName!='No planet yet!'&&choice!=null))}" :disabled="!((isAI&&active=='2'&&!inComparison)||(!inComparison&&pName!='No planet yet!'&&choice!=null))">Compare!</button>  
+                <button @click="comparetrumps()" id="comparebtn" :class="{vanish: !(((isAI||isOnline)&&active=='2'&&!inComparison)||(!inComparison&&pName!='No planet yet!'&&choice!=null))}" :disabled="!((isAI&&active=='2'&&!inComparison)||(!inComparison&&pName!='No planet yet!'&&choice!=null))">Compare!</button>  
               
                 
                   
@@ -433,9 +465,9 @@ let deckSize=42;
               </div>
               </div>
             
-            <statbox :class="{rivbox: active==1, activebox: active==2}" :rolling="rollEvent" :planetdata="response" :mystery="!evald && !inComparison" :locked="evald" :overridehighlight="choice" :selectable="false" />
+            <statbox :class="{rivbox: active==1, activebox: active==2}" :rolling="rollEvent||(isOnline&&active=='2'&&!(inComparison||evald))" :planetdata="pdat2" :mystery="(!evald && !inComparison)" :locked="evald" :overridehighlight="choice" :selectable="false" />
                 <!-- rivbox and activebox switch positions instead of function when player changes-->
-                <div style="height:40px;  " />  <div class="nameplate" :class="{rivplate:active==2}">{{ username1 }}</div><div class="nameplate":class="{rivplate:active=='1'}">{{ rivname }}</div> <br> <div  class="cardpile">{{ p1len }}</div><div  class="cardpile p2pile">{{ p2len }}</div> 
+                <div style="height:40px;  " />  <div class="nameplate" :class="{rivplate:active==2}">{{ username1 }}</div><div class="nameplate":class="{rivplate:active=='1'}">{{ rivname }}</div> <br> <div  class="cardpile">{{p1len}}</div><div  class="cardpile p2pile">{{ p2len }}</div> 
             </div>
                 <br><br> 
                 
