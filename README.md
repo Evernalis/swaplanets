@@ -8,7 +8,7 @@
 This is a Top Trumps style game that uses planets from Star Wars as the objects that the players compete to claim. One player is determined the 'caller', and they decide what statistic from the five available is to be used to compare the planets. The opponent's planet is revealed, and the planet with the highest statistic wins the round. The winner of the round becomes the caller for the next round. If there is a draw, the winner of the next round also claims the planets contested in the drawn round.
 The game ends when one player has all of the planets.
 
-
+**NOTE:** It is highly recommended to arrange online multiplayer in advance, as spontaneous games are highly unlikely.
 
 ## How it was made
 This project has been built using HTML, CSS, and JavaScript using the Vue.js framework, with data supplied by SWAPI, the Star Wars API [(swapi.info)](swapi.info).
